@@ -1,12 +1,14 @@
-# Upskilling
+# Upskilling Python
 
-This repository is a compendium for working on various skils that needs upskilling.
+This repository is for learning Python (in general, not necessarily tied to a particular course).
 
 ## Contact
 
 For more information, please contact:
-
-- Miguel Rodo: miguel.rodo@outlook.com
+- Miguel J. Rodo:
+  - miguel.rodo@outlook.com
+- :
+  - 
 
 ## Links
 
