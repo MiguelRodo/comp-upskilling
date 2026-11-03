@@ -7,7 +7,9 @@
     }
   ],
   "python.REPL.sendToNativeREPL": false,
-  "python.REPL.enableREPLSmartSend": true
+  "python.REPL.enableREPLSmartSend": true,
+    "github.copilot.enable": {
+    "*": true,
+    "python": false
   }
-
-  
+}
