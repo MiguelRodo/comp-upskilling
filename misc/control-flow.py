@@ -99,3 +99,69 @@ for i, val in enumerate(values):
 
 for i in range(len(values)):
   values[i] *= 2
+
+# exercise 20
+i = 0
+
+while i < 5:
+  print(i)
+  i += 2
+
+# part a
+n = 1
+while n < 11:
+  print(n)
+  n += 1
+
+# part b
+measurements = [0.12, 0.15, 0.18, 0.95, 0.22, 0.30]
+
+for x in measurements:
+  print(x)
+  if x > 0.8:
+    break
+
+# part c
+for x in measurements:
+  if x >= 0.3:
+    continue
+  print(x)
+
+# part d
+i = 0
+
+while i < 5:
+    i += 1
+
+    if i == 2:
+        continue
+
+    if i == 4:
+        break
+
+    print(i)
+
+# will print just 1 and 3
+# skips 2 because of continue before print
+# doesn't do 4 or 5 because the break check
+# happens first
+
+# part e 
+statuses = [
+    "success",
+    "failed",
+    "success",
+    "failed",
+    "failed",
+    "success"
+]
+
+n_failure = 0
+
+for index,status in enumerate(statuses):
+  print("Processing")
+  n_failure += 1 if status == "failed" else n_failure
+  if index + 1 == len(statuses) or n_failure == 3:
+    print("Encourated " + str(n_failure) + " failure" + ("s" if n_failure != 1 else ""))
+    if n_failure == 3:
+      break
