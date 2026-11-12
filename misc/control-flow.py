@@ -160,8 +160,114 @@ n_failure = 0
 
 for index,status in enumerate(statuses):
   print("Processing")
-  n_failure += 1 if status == "failed" else n_failure
+  n_failure += 1 if status == "failed" else 0
   if index + 1 == len(statuses) or n_failure == 3:
     print("Encourated " + str(n_failure) + " failure" + ("s" if n_failure != 1 else ""))
     if n_failure == 3:
       break
+
+# exercise 21
+participants = [
+  {"id": 101, "response": 0.82, "status": "complete"},
+  {"id": 102, "response": 0.65, "status": "complete"},
+  {"id": 103, "response": None, "status": "pending"},
+  {"id": 104, "response": 0.91, "status": "complete"},
+  {"id": 105, "response": 0.73, "status": "failed"},
+  {"id": 106, "response": 0.88, "status": "complete"}
+]
+
+# part a
+for x in participants:
+  if x["status"] == "complete" and x["response"] > 0.8:
+    print(str(x["id"]) + ": " + str(x["response"]))
+
+# part a
+for x in participants:
+  if x["status"] == "complete" and x["response"] > 0.8:
+    print(f'{x["id"]}' + ": " + f'{x["response"]}')
+
+
+for x in participants[0:1]:
+  print(x["id"])
+  print(type(x["id"]))
+  print(str(x["id"]))
+  print(type(str(x["id"])))
+
+# part b
+count_dict = {
+  "n_complete": 0, "n_pending":  0, "n_failed":  0, "n_complete_g08":  0
+  }
+for x in participants:
+  if x["status"] == "complete":
+    count_dict["n_complete"] += 1
+    if x["response"] > 0.8:
+      count_dict["n_complete_g08"] += 1
+  elif x["status"] == "pending":
+    count_dict["n_pending"] += 1
+  elif x["status"] == "failed":
+    count_dict["n_failed"] += 1
+  else:
+    print("error")
+
+print(count_dict)
+
+pid_idx = 0
+complete_list = []
+while pid_idx < (len(participants)):
+  participants_curr = participants[pid_idx]
+  if participants_curr["status"] == "complete" and participants_curr["response"] is not None:
+    complete_list.append(participants_curr["response"])
+  pid_idx += 1
+print(complete_list)
+
+for x in participants:
+  status = x["status"]
+  response = x["response"]
+  if response is not None and status == "complete":
+    if response > 0.8:
+      x.__setitem__("high_response", True)
+    else:
+      x.__setitem__("high_response", False)
+  else:
+    x.__setitem__("high_response", None)
+
+
+for x in participants:
+  status = x["status"]
+  response = x["response"]
+  if response is not None and status == "complete":
+    if response > 0.8:
+      x["high_response"] = True
+    else:
+      x["high_response"] = False
+  else:
+    x["high_response"] = None
+
+for x in participants:
+  status = x["status"]
+  response = x["response"]
+  if response is not None and status == "complete":
+    x["high_response"] = response > 0.8
+  else:
+    x["high_response"] = None
+
+
+# 1. existing dictionary
+# 2. yes
+# 3. yes. Well, I'm not sure. Here we seem to be assigning it to a new obje ct
+# okay, I just checked, and no, it does not. 
+# so, [] is modification in place (for dictionaries, anyway)
+# 4. I suppose because well, I'm not sure what would happen otherwie.map
+# okay, I just get, and it says you can't copmapre between NoneType and flaot
+# with > 
+
+for x in participants:
+  x = "a"
+
+print(participants)
+
+x = None
+if x > 0.8:
+  print("abc")
+else:
+  print("def")
