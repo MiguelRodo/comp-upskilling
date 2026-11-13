@@ -271,3 +271,324 @@ if x > 0.8:
   print("abc")
 else:
   print("def")
+
+# exercise 24
+x = 10
+
+def calculate():
+  y = 5
+  return x + y
+
+calculate()
+
+def test(result = None):
+  if result is None:
+    result = []
+  result.append(1)
+  return result
+
+test()
+
+
+# part A
+
+x = 10
+
+def calculate():
+    x = 20
+    return x
+
+y = calculate()
+
+print(x) # 10
+print(y) # 20
+
+# part B
+
+x = 10
+
+def calculate():
+  y = x + 5
+  x = y + 2
+  return x
+
+calculate() # okay, I thought it would use x from the global scope, like x + y used x in the global scope in your example, but that's not what happened
+
+
+# part c
+
+counter = 0
+
+def increment():
+    global counter
+    counter += 1
+
+increment()
+increment()
+
+print(counter) # 2
+
+# part d
+results = [1, 2, 3]
+
+def add_result():
+    results.append(4)
+
+add_result()
+print(results) # [1, 2, 3, 4]
+
+results = [1, 2, 3]
+
+def add_result():
+    results = results + [4]
+
+add_result()
+
+# exercise 25
+
+## part a
+def calculate_mean(*args):
+  if not args:
+    return None
+  return sum(args) / len(args)
+
+calculate_mean(2, 4, 6)
+calculate_mean(10, 20)
+calculate_mean()
+
+## part b
+def create_participant(id, **kwargs):
+  participant = {"id": id}
+  if kwargs is None or len(kwargs) == 0:
+    return(participant)
+  for key, value in kwargs.items():
+    participant[key] = value
+  return participant
+
+create_participant(101)
+create_participant(101, age = 35, response = 0.82, status = "complete")
+
+
+
+# part c
+def calculate(x, y, z):
+  return x + y + z
+
+values = [2, 3, 4]
+parameters = {"x": 2, "y": 3, "z": 4}
+
+# 9
+# 9
+# error (y and z not defined)
+# either an error, because we're trying to unpack
+# something that has names without acknowleding that it has names
+# or no error because we're unpacking positionally
+# ah, it passed just the keys!
+# okay, I hadn't thought of that.
+# if yuo loop  over a dictionary, it's also the 
+# key rather than the value that's passed, right?
+
+
+calculate(*values)
+calculate(**parameters)
+calculate(values)
+calculate(*parameters)
+
+
+for x in parameters:
+  print(x)
+
+for x in parameters.values():
+  print(x)
+
+
+# part d
+def inspect(x, *args, **kwargs):
+  print(x)
+  print(args)
+  print(kwargs)
+
+inspect(10, 20, 30, name="study_A", alpha=0.05)
+# x: 10
+# args: (20, 30) (tuple)
+# kwargs: {"name": "study_A", "alpha": 0.05}
+
+
+# part e
+# i would think the first is, because args is
+# taking unnamed arguments, which is fine,
+# so they can come before that with the default parameter
+# value
+
+# analyse(1, 2, 3): ((1, 2), 3) OR ((1, 2, 3), 0.05) (not sure).
+# okay, it's the later, *args will suck up everything
+# analyse(1, 2, threshold=0.01): ((1, 2), 0.01)
+def analyse(*args, threshold=0.05):
+    return args, threshold
+
+analyse(1, 2, 3)
+analyse(1, 2, threshold=0.01)
+
+
+# you can never supply threshold as an ordinary positional argument
+
+
+# exercise 26
+
+participants = [
+    {"id": 101, "response": 0.82, "status": "complete"},
+    {"id": 102, "response": 0.65, "status": "complete"},
+    {"id": 103, "response": None, "status": "pending"},
+    {"id": 104, "response": 0.91, "status": "complete"},
+    {"id": 105, "response": 0.73, "status": "failed"},
+    {"id": 106, "response": 0.88, "status": "complete"}
+]
+
+# part a
+def get_valid_responses(pid_list):
+  resp_list = []
+  for x in pid_list:
+    if x["status"] == "complete" and x["response"] is not None:
+      resp_list.append(x["response"])
+  return resp_list
+
+valid = get_valid_responses(participants)
+
+
+## part b
+
+### version 1
+def summarise_responses(*args):
+  if not args:
+    return {"n": 0, "mean": None}
+  return {"n": len(args), "mean": sum(args) / len(args)}
+
+summarise_responses(*valid)
+# {"n": 4, "mean": 0.815}
+
+summarise_responses(*[])
+# {"n": 0, "mean": None}
+
+
+### version 2
+def summarise_responses_ifelse(*args):
+  n = len(args)
+  return {"n": n, "mean": None if n == 0 else sum(args) / n}
+
+summarise_responses_ifelse(*valid)
+# {"n": 4, "mean": 0.815}
+
+summarise_responses_ifelse(*[])
+# {"n": 0, "mean": None}
+
+
+### version 3
+def summarise_responses_list(resp_list):
+  n = len(resp_list)
+  return {"n": n, "mean": None if n == 0 else sum(resp_list) / n}
+
+summarise_responses_list(valid)
+# {"n": 4, "mean": 0.815}
+
+summarise_responses_list([])
+# {"n": 0, "mean": None}
+
+
+## part c
+
+### version 1
+def classify_responses(resp_list, threshold=0.8):
+  gt_list = []
+  if not resp_list:
+    return gt_list
+  for x in resp_list:
+    gt_list.append(x > threshold)
+  return gt_list
+
+classify_responses(valid)
+# [True, False, True, True]
+
+classify_responses(valid, threshold=0.9)
+# [False, False, True, False]
+
+### version 2
+def classify_responses_args(*args, threshold=0.8):
+  gt_list = []
+  if not args:
+    return gt_list
+  for x in args:
+    gt_list.append(x > threshold)
+  return gt_list
+
+classify_responses_args(*valid)
+# [True, False, True, True]
+
+classify_responses_args(*valid, threshold=0.9)
+# [False, False, True, False]
+
+## part d
+
+def add_flag(records):
+    for record in records:
+        record["reviewed"] = True
+    return records
+
+original = [{"id": 1}, {"id": 2}] # list, where each element is a dictionary
+updated = add_flag(original) # okay, for each record, we are adding the reviewed key
+ 
+# print(original):  [{"id": 1, "reviewed": True}, {"id": 2, "reviewed": True}] 
+# print(updated): [{"id": 1, "reviewed": True}, {"id": 2, "reviewed": True}] 
+# print(original is updated): True (we never created a new outer container)
+
+print(original)
+print(updated)
+print(original is updated)
+
+def add_flag(records):
+    records_new = records.copy() # elements themselves point to the same objects
+    for record in records_new:
+        record_new = 
+    return records
+
+
+def add_flag_new(records):
+  records_new = []
+  for record in records:
+    record_new = record.copy()
+    record_new["reviewed"] = True
+    records_new.append(record_new)
+  return records_new
+
+add_flag_new(original)
+
+
+# part e
+def get_valid_responses(pid_list):
+  resp_list = []
+  for x in pid_list:
+    if x["status"] == "complete" and x["response"] is not None:
+      resp_list.append(x["response"])
+  return resp_list
+
+def analyse_participants(pid_dict, *, threshold=0.8):
+  valid = get_valid_responses(pid_dict)
+  out_dict = summarise_responses_list(valid)
+  out_dict["n_high"] = sum(classify_responses(valid, threshold=threshold))
+  out_dict["threshold"] = threshold
+  return out_dict
+
+analyse_participants(participants)
+
+  
+
+
+analyse_participants(participants)
+analyse_participants([])
+analyse_participants(participants, threshold=0.9)
+
+before = [p.copy() for p in participants]
+
+result = analyse_participants(participants, threshold=0.9)
+
+assert result["n_high"] == 1
+assert participants == before
