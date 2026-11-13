@@ -592,3 +592,5 @@ result = analyse_participants(participants, threshold=0.9)
 
 assert result["n_high"] == 1
 assert participants == before
+
+
