@@ -1,12 +1,14 @@
-# Upskilling
+# Biostatistician-specific upskilling
 
-This repository is a compendium for working on various skils that needs upskilling.
+This repository contains practice areas for technical biostatician upskilling.
 
 ## Contact
 
 For more information, please contact:
-
-- Miguel Rodo: miguel.rodo@outlook.com
+- Miguel J. Rodo:
+  - miguel.rodo@uct.ac.za
+- :
+  - 
 
 ## Links
 
