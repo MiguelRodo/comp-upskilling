@@ -1,10 +1,6 @@
 {
-  "name": "Upskilling with PostgreSQL",
-  "dockerComposeFile": "compose.yaml",
-  "service": "dev",
-  "workspaceFolder": "/workspaces/upskilling",
-  "remoteUser": "rstudio",
-  "shutdownAction": "stopCompose",
+  "name": "Upskilling",
+  "image": "ghcr.io/miguelrodo/devcontainers-main:v1.12.1",
   "customizations": {
     "vscode": {
       "extensions": [

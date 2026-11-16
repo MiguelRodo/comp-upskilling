@@ -1,0 +1,16 @@
+{
+  "name": "Upskilling with PostgreSQL",
+  "dockerComposeFile": "../compose.yaml",
+  "service": "dev",
+  "workspaceFolder": "/workspaces/upskilling",
+  "remoteUser": "rstudio",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "quarto.quarto",
+        "mathematic.vscode-pdf"
+      ]
+    }
+  }
+}
