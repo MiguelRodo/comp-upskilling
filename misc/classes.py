@@ -519,3 +519,247 @@ class TrialParticipant(Participant):
 
 p = TrialParticipant(104, "placebo")
 p.add_visit(0)
+
+# dataclasses
+
+class Participant:
+  def __init__(self, participant_id, age, response=None):
+    self.participant_id = participant_id
+    self.age = age
+    self.response = response
+
+# exercise 33
+
+from dataclasses import dataclass
+
+@dataclass
+class Participant:
+  partipant_id: int
+  age: int
+  response: float | None = None
+
+p1 = Participant(101, 34, 8)
+p2 = Participant(101, 34, 8)
+
+p3 = p1
+
+print(p1) # Participant(participant_id=101, age=34, response=8)
+print(p1 == p2)
+print(p1 is p2)
+print(p1 == p3)
+print(p1 is p3)
+
+p4 = Participant(102, 42)
+print(p4) # None. Is that what the | None = None means? what if we did age: int | 31
+p5 = Participant(101)
+
+@dataclass
+class ParticipantAge:
+  partipant_id: int
+  age: int = 32
+  response: float | None = None
+
+p_test = ParticipantAge(101)
+
+# A. What would Participant(101, response=0.8) produce? Participant(participant_id=101, age=32, response=None)
+
+# B. Could you rearrange the class so that age: int = 32 appears before participant_id: int? What do you think would happen? Well, I'm not sure. POsosbly an error beacuse we'd assign 101 to age and then nothing to partiicantID?
+
+# C. No, I don't think so, this method is written up for this clas
+
+
+# exercise 33C
+
+class Participant:
+  def __init__(self, participant_id, age):
+    self.participant_id = participant_id
+    self.age = age
+
+  def __repr__(self):
+    return f'Participant(participant_id={self.participant_id}, age={self.age})'
+
+  def __eq__(self, other):
+    return (
+      isinstance(other, Participant)
+      and self.participant_id == other.participant_id
+      and self.age == other.age
+    )
+
+p1 = Participant(101, 33)
+p2 = Participant(101, 33)
+p1
+p2
+p1==p2
+
+p1 = Participant(101, 34)
+p2 = Participant(101, 35)
+
+print(p1) # Participant(participant_id=101, age=33)
+print(p1 == p2) # False
+print(p1 == Participant(101, 34)) # False
+
+# B: drop the `and self.age == other.age` bit
+
+(
+  True
+  and False
+)
+
+# d
+
+from dataclasses import dataclass, field
+
+@dataclass
+class Participant:
+  participant_id: int
+  visits: list[int] = field(default_factory=list)
+
+
+p1 = Participant(101)
+p2 = Participant(102)
+
+p1.visits.append(0)
+p1.visits.append(28)
+
+print(p1) # Participant(participant_id=101, visits=[101, 102])
+print(p2) # Participant(participant_id=102, visits=[])
+print(p1.visits is p2.visits) # False
+
+# b
+@dataclass
+class Participant:
+  participant_id: int
+  visits: list[int] = field(default_factory=list)
+
+  def add_visit(self, day):
+    self.visits.append(day)
+
+p1 = Participant(101)
+p2 = Participant(102)
+
+p1.visits.append(0)
+p1.visits.append(28)
+p1.add_visit(56)
+
+p1.visits
+
+# c: because we need something to call to create the new list,
+# and I suppose it assumes a callable. But more fundeamntealy,
+# because otherwise we'd create the mutable object that all
+# later instances woudl ferer to 
+
+
+from dataclasses import dataclass, field
+
+@dataclass
+class Visit:
+  day: int
+  response: float | None = None
+
+@dataclass
+class Participant:
+  participant_id: int
+  visits: list[Visit] = field(default_factory=list)
+
+  def add_visit(self, day, response):
+    self.visits.append(Visit(day, response))
+
+p1 = Participant(101)
+p1.add_visit(0, 0.12)
+p1.add_visit(28, 0.35)
+
+p1
+print(p1.visits[0].response)
+
+
+# exercise b
+
+@dataclass
+class Participant:
+  participant_id: int
+  visits: list[Visit] = field(default_factory=list)
+
+  def add_visit(self, day, response):
+    self.visits.append(Visit(day, response))
+
+  def mean_response(self):
+    visits = self.visits
+    if len(visits) == 0:
+      return None
+    else:
+      k = 0
+      summed_response = 0
+      for i in range(len(visits)):
+        response = visits[i].response
+        if response is not None:
+          summed_response += response
+          k += 1
+      if k >= 1:
+        return summed_response / k
+      else:
+        return None
+
+p1 = Participant(101)
+p1.add_visit(0, 0.12)
+p1.add_visit(28, 0.35)
+p1.add_visit(56, None)
+p1.mean_response()
+
+# exercise c
+
+@dataclass
+class Participant:
+  participant_id: int
+  visits: list[Visit] = field(default_factory=list)
+
+  def add_visit(self, day, response):
+    self.visits.append(Visit(day, response))
+
+  def mean_response(self):
+    visits = self.visits
+    if len(visits) == 0:
+      return None
+    else:
+      k = 0
+      summed_response = 0
+      for i in range(len(visits)):
+        response = visits[i].response
+        if response is not None:
+          summed_response += response
+          k += 1
+      if k >= 1:
+        return summed_response / k
+      else:
+        return None
+
+  def change_from_baseline(self, day):
+    visits = self.visits
+    bl_resp = None
+    day_resp = None
+    day_resp_detected = False
+    bl_resp_detected = False
+    for visit in visits:
+      day_curr = visit.day
+      resp_curr = visit.response
+      if day_curr == day:
+        if day_resp_detected is True:
+          raise ValueError(f"Duplicate visit at day {day_curr}")
+        day_resp = resp_curr
+        day_resp_detected = True
+      if day_curr == 0:
+        if bl_resp_detected is True:
+          raise ValueError(f"Duplicate visit at day {day_curr}")
+        bl_resp = resp_curr
+        bl_resp_detected = True
+    if bl_resp is not None and day_resp is not None:
+      return day_resp - bl_resp
+    else:
+      return None
+
+p1 = Participant(101)
+p1.add_visit(0, 0.12)
+p1.add_visit(28, 0.35)
+p1.add_visit(56, None)
+
+print(p1.change_from_baseline(28))  # 0.23
+print(p1.change_from_baseline(56))  # None
