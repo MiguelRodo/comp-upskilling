@@ -1,0 +1,199 @@
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tibble)
+library(survival)
+```
+
+```{r}
+set.seed(189)
+
+n <- 600
+age <- round(runif(n, 25, 80))
+severity <- rbinom(n, 1, 0.35)  # 1 = severe, 0 = non-severe
+site <- sample(c("Urban", "Town", "Rural"), n, replace = TRUE)
+
+# Programme uptake depends on age, severity and site
+site_effect <- c(Urban = 0.7, Town = 0, Rural = -0.7)
+p <- plogis(-1.2 + 0.05 * (age - 50) + 1.5 * severity + site_effect[site])
+trt <- rbinom(n, 1, p)
+
+# Simulate event times and administrative censoring at day 180
+event_time <- rexp(n, rate = 0.004 * exp(
+  0.02 * (age - 50) + 0.8 * severity - 0.35 * trt
+))
+
+d <- data.frame(
+  trt, age, severity, site,
+  time = pmin(event_time, 180),
+  event = as.integer(event_time <= 180)
+)
+
+head(d)
+d <- tibble::as_tibble(d)
+d$trt <- as.character(d$trt)
+```
+
+# Practice A: Fit a propensity-score model in R
+
+- Who is more likely to enter the program?
+  - Old people
+  - And?
+    - Particular sites
+- What does the dataframe have?
+
+```{r}
+fit_glm <- glm(
+  trt ~ age + severity + site, data = d |> dplyr::mutate(trt = as.integer(trt)),
+  family = binomial()
+)
+d$ps <- predict(fit_glm, type = "response")
+```
+
+```{r}
+trt_col_vec <- c("0" = "dodgerblue", "1" = "orange")
+p <- ggplot(aes(x = trt, y = ps), data = d) +
+  geom_boxplot(aes(fill = trt), alpha = 0.25) +
+  geom_jitter(aes(col = trt), alpha = 0.75, height = 0) +
+  scale_colour_manual(values = trt_col_vec) +
+  cowplot::theme_cowplot() +
+  cowplot::background_grid(major = "xy") +
+  theme(
+    plot.background = element_rect(fill = "white", colour = "white"),
+    panel.background = element_rect(fill = "white", colour = "white")
+  )
+path_p <- "_tmp/p-exp-ps.png"
+ggplot2::ggsave(
+  filename = path_p,
+  plot = p,
+  units = "cm",
+  height = 10,
+  width = 10
+)
+```
+
+## part b
+
+```{r}
+d <- d |>
+  dplyr::mutate(
+    ipw_weight_ate = ifelse(trt == 0, 1/(1-ps), 1/ps),
+    ipw_weight_att = ifelse(trt == 0, ps/(1-ps), 1)
+  )
+d |>
+ dplyr::group_by(trt) |>
+ dplyr::arrange(trt, dplyr::desc(ipw_weight_ate)) |>
+ dplyr::slice(1:3) |>
+ dplyr::ungroup()
+```
+
+## part c
+
+```{r}
+d |>
+  dplyr::group_by(trt) |>
+  dplyr::summarise(
+    observed = dplyr::n(),
+    effective_ate = sum(ipw_weight_ate)^2 / sum(ipw_weight_ate^2),
+    effective_att = sum(ipw_weight_att)^2 / sum(ipw_weight_att^2),
+    loss_prop_ate = 1 - effective_ate / observed,
+    loss_prop_att = 1 - effective_att / observed
+    )
+```
+
+## part d
+
+```{r}
+d |>
+  dplyr::group_by(trt) |>
+  dplyr::summarise(
+    prop_severely_ill_raw = sum(severity == 1) / dplyr::n(),
+    prop_severely_ill_ate = sum(ipw_weight_ate * (severity == 1)) / sum(ipw_weight_ate), 
+    prop_severely_ill_att = sum(ipw_weight_att * (severity == 1)) / sum(ipw_weight_att)
+  )
+```
+
+## part e
+
+```{r}
+#fit a Kaplan-Meier and plot it 
+fit <- survfit(Surv(time, status) ~ x, data = aml) 
+plot(fit, lty = 2:3) 
+legend(100, .8, c("Maintained", "Nonmaintained"), lty = 2:3) 
+     
+```
+
+```{r}
+km_curv <- survival::survfit(
+  survival::Surv(time = time, event = event) ~ trt, weights = ipw_weight_ate,
+  data = d
+)
+path_p_km <- "_tmp/km.png"
+png(path_p_km, res = 300, height = 1000, width = 1000)
+plot(km_curv)
+dev.off()
+
+km_180 <- summary(km_curv, times = 180)
+d_km <- data.frame(
+  arm = km_180$strata,
+  survival_180 = km_180$surv
+)
+(d_km[2, 2] - d_km[1, 2]) * 100
+```
+
+```{r}
+km_curv <- survival::survfit(
+  survival::Surv(time = time, event = event) ~ trt,
+  data = d
+)
+path_p_km <- "_tmp/km-unweight.png"
+png(path_p_km, res = 300, height = 1000, width = 1000)
+plot(km_curv)
+dev.off()
+
+km_180 <- summary(km_curv, times = 180)
+d_km <- data.frame(
+  arm = km_180$strata,
+  survival_180 = km_180$surv
+)
+(d_km[2, 2] - d_km[1, 2]) * 100
+```
+
+```{r}
+fit <- coxph(Surv(time, event) ~ trt + age + severity, data = d)
+
+mean_survival_180 <- function(arm) {
+  newdata <- d
+  newdata$trt <- arm
+  curves <- survfit(fit, newdata = newdata)
+  mean(summary(curves, times = 180)$surv)
+}
+100 * (mean_survival_180("1") - mean_survival_180("0"))
+```
+
+## propensity amtching
+
+```{r}
+ps_fit <- glm(
+  I(trt == "1") ~ age + severity + site,
+  data = d,
+  family = binomial()
+  )
+d$ps <- fitted(ps_fit)
+
+m <- MatchIt::matchit(
+  trt ~ age + severity + site,
+  data = d,
+  distance = d$ps,
+  method = "nearest",
+  estimand = "ATT",
+  ratio = 1,
+  replace = FALSE,
+  caliper = 0.05,
+  std.caliper = FALSE
+)
+summary(m)
+cobalt::bal.tab(m, un = TRUE)
+
+matched <- MatchIt::match_data(m)
+```
