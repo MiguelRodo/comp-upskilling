@@ -1,6 +1,6 @@
 services:
   dev:
-    image: ghcr.io/miguelrodo/devcontainers-main:v1.12.1
+    image: ghcr.io/miguelrodo/devcontainers-main:v1.13.1
     volumes:
       - ..:/workspaces/upskilling
     command: sleep infinity
