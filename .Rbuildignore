@@ -20,6 +20,8 @@
 ^_dependencies\.R$
 ^BUILDLOG\.md$
 ^CHANGELOG\.md$
+^\.devcontainer/
+^\.devcontainer$
 ^01-data-prep\.html$
 ^02-primary-analysis\.html$
 ^04-clinical-summary\.pdf$
