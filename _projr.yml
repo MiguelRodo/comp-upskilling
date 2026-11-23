@@ -1,12 +1,23 @@
-# default directory settings:
 directories:
+  raw-docs:
+    path: _reference
   raw-data:
     path: _raw_data
     source:
       github: archive
-  cache: 
+  cache:
     path: _tmp
-  output: 
+  output:
     path: _output
   docs:
     path: docs
+build:
+  github:
+    archive:
+      content:
+      - raw-data
+      - output
+      - raw-docs
+      - docs
+      structure: archive
+

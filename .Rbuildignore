@@ -1,32 +1,60 @@
 ^_projr\.yml$
 
 # Start of projr section: do not edit by hand (update with projr_ignore_auto())
+^_output(/|$)
+^_raw_data(/|$)
+^_reference(/|$)
+^_tmp(/|$)
+^docs(/|$)
+# End of configured directory rules
+^_projr\.yml$
 ^_projr/manifests/
 ^_projr/manifests$
+^01\.qmd$
 ^README\.Rmd$
-^_projr\.yml$
+^01\.html$
 ^README\.html$
+^01\.tex$
 ^README\.tex$
+^01\.knit\.md$
 ^README\.knit\.md$
+^01\.utf8\.md$
 ^README\.utf8\.md$
+^01\.rmarkdown$
 ^README\.rmarkdown$
+^01\.log$
 ^README\.log$
+^01\.aux$
 ^README\.aux$
+^01\.out$
 ^README\.out$
+^01\.toc$
 ^README\.toc$
+^01\.fls$
 ^README\.fls$
+^01\.fdb_latexmk$
 ^README\.fdb_latexmk$
+^01\.synctex\.gz$
 ^README\.synctex\.gz$
+^01\.bbl$
 ^README\.bbl$
+^01\.blg$
 ^README\.blg$
+^01\.nav$
 ^README\.nav$
+^01\.snm$
 ^README\.snm$
+^01\.vrb$
 ^README\.vrb$
+^01_files/
+^01_files$
 ^README_files/
 ^README_files$
+^01_cache/
+^01_cache$
 ^README_cache/
 ^README_cache$
-^_archive/
-^_archive$
+^\.quarto/
+^\.quarto$
 # End of projr section
 

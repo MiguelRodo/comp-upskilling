@@ -1,20 +1,20 @@
-# README
+# Desmond Tutu Health Foundation
 
-The purpose of this project is to
-`[briefly describe the project's goals and objectives]`
+The purpose of this project is to complete the competency assessment for the DTHF senior biostatistician application.
 
 ## Reproducing the analysis
 
 Run the following code from the project working directory:
 
-    if (!requireNamespace("projr", quietly = TRUE)) {
-      if (!requireNamespace("remotes", quietly = TRUE)) {
-        install.packages("remotes")
-      }
-      remotes::install_github("SATVILab/projr")
-    }
-    projr::projr_build_dev()
-
+```r
+if (!requireNamespace("projr", quietly = TRUE)) {
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")
+  }
+  remotes::install_github("SATVILab/projr")
+}
+projr::projr_build_dev()
+```
 <!--
 Change the above instructions, e.g. specify non-default parameters or
 another approach entirely.
