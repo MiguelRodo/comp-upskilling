@@ -50,7 +50,7 @@ remotes::install_github("MiguelRodo/comp-upskilling@tutu-competency-assessment")
 
 The processed data can then be loaded a follows:
 
-```{r, eval=false}
+```{r, eval=FALSE}
 data("data_merged_tidy", "data_surv_tidy", package = "tutuCompetency")
 ```
 
