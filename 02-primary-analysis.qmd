@@ -1,0 +1,6 @@
+---
+title: "Task 2: Primary Analysis"
+format:
+  html:
+    embed-resources: true
+---

@@ -11,7 +11,13 @@ directories:
     path: _output
   docs:
     path: docs
+  data:
+    path: data
 build:
+  scripts:
+  - !_dependencies.R
+  - 01-data-prep.qmd
+  - 02-primary-analysis.qmd
   github:
     archive:
       content:

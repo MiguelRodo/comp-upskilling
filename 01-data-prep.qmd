@@ -1,0 +1,486 @@
+---
+title: "Task 2: Data Preparation"
+format:
+  html:
+    embed-resources: true
+---
+
+```{r}
+library(ggplot2)
+library(tibble)
+
+fn_vec <- list.files("R", full.names = TRUE)
+for (i in seq_along(fn_vec)) {
+  source(fn_vec[i])
+}
+```
+
+# Data preparation
+
+Audit counts report table rows and distinct non-missing participants separately;
+rows in longitudinal tables are not necessarily unique participants or visits.
+
+```{r}
+data_bl_raw <- readr::read_csv(
+  projr::projr_path_get("raw-data", "baseline_cohort.csv")
+)
+data_long_raw <- readr::read_csv(
+  projr::projr_path_get("raw-data", "longitudinal_visits.csv")
+)
+audit_table(data_bl_raw, show_rows = FALSE)
+audit_table(data_long_raw, show_rows = FALSE)
+```
+
+## Audit of raw files
+
+### Baseline
+
+```{r}
+data_bl_raw |>
+  UtilsDataRSV::view_cols()
+```
+
+Check for any subjid's not matching PT-<dddd> format:
+
+```{r}
+data_bl_raw |>
+  dplyr::filter(!grepl("^PT-\\d{4}$", subjid)) |>
+  audit_table()
+```
+
+There are none.
+
+Let's check if there are any duplicate subjid's:
+
+```{r}
+data_bl_raw |>
+  dplyr::group_by(subjid) |>
+  dplyr::filter(dplyr::n() > 1) |>
+  dplyr::ungroup() |>
+  audit_table()
+```
+
+There are none.
+
+Let's check if each person stays at the same site:
+
+```{r}
+data_bl_raw |>
+  dplyr::group_by(subjid) |>
+  dplyr::filter(dplyr::n_distinct(site_id) > 1) |>
+  dplyr::ungroup() |>
+  audit_table()
+```
+
+They all stay at the same site.
+
+Now we can check for enrollment dates not in the yyyy-mm-dd format:
+
+```{r}
+data_bl_raw |>
+  dplyr::filter(!grepl("^\\d{4}-\\d{2}-\\d{2}$", enroll_dt)) |>
+  audit_table()
+```
+
+There are none.
+
+Let's see what the range of enrolment dates is, in case anything looks odd or misspecified:
+
+```{r}
+data_bl_raw |>
+  dplyr::summarise(
+    min_enroll_dt = min(as.Date(enroll_dt)),
+    max_enroll_dt = max(as.Date(enroll_dt))
+  )
+```
+
+So, six-month enolment period looks reasonable (could check against raw docs if had time).
+
+Let's check the ranges, IQR and typical values of `age_yrs`, `base_egfr` and `risk_score`:
+
+```{r}
+data_bl_raw |>
+  dplyr::summarise(
+    min_age_yrs = min(age_yrs, na.rm = TRUE),
+    max_age_yrs = max(age_yrs, na.rm = TRUE),
+    iqr_age_yrs = IQR(age_yrs, na.rm = TRUE),
+    med_age_yrs = median(age_yrs, na.rm = TRUE),
+    min_base_egfr = min(base_egfr, na.rm = TRUE),
+    max_base_egfr = max(base_egfr, na.rm = TRUE),
+    iqr_base_egfr = IQR(base_egfr, na.rm = TRUE),
+    med_base_egfr = median(base_egfr, na.rm = TRUE),
+    min_risk_score = min(risk_score, na.rm = TRUE),
+    max_risk_score = max(risk_score, na.rm = TRUE),
+    iqr_risk_score = IQR(risk_score, na.rm = TRUE),
+    med_risk_score = median(risk_score, na.rm = TRUE)
+  ) |>
+  print(width = Inf)
+```
+
+So, we've got a ten year old, that seems weird.
+I suppose you can take this to prevent getting HIV via non-sexual means, so I'll assume that.
+
+I don't know what normal ranges would be for the base_egfr value, but I see at least the risk score is within correct bounds (0-10).
+
+Okay, that looks fine. Let's convert the `enroll_dt` column to Date format, and make subjid lower case.
+
+```{r}
+data_bl_tidy <- data_bl_raw |>
+  dplyr:::mutate(
+    enroll_dt = as.Date(enroll_dt),
+    subjid = tolower(subjid),
+    site_id = tolower(site_id)
+  )
+```
+
+Let's check that the range matches what we expect (correct reference date for conversion from csv):
+
+```{r}
+data_bl_tidy |>
+  dplyr::summarise(
+    min_enroll_dt = min(enroll_dt, na.rm = TRUE),
+    max_enroll_dt = max(enroll_dt, na.rm = TRUE)
+  )
+```
+
+That's correct.
+
+Let's check sample size briefly:
+
+```{r}
+data_bl_tidy |>
+  dplyr::summarise(
+    n = dplyr::n(),
+    n_unique_subjid = length(unique(subjid))
+  )
+```
+
+So, 600.
+
+### Longitudinal
+
+```{r}
+data_long_raw |>
+  UtilsDataRSV::view_cols()
+```
+
+So, we have some NA entires in the `egfr_val` column, but none elsewhere.
+We'll convert the hiv_status variable from 1 0 to "infected", "uninfected".
+
+We'll make regimen and adh_biomarker lower case.
+
+Okay, so, let's do the same checks for subjid:
+
+```{r}
+# Check for any subjid's not matching PT-<dddd> format
+data_long_raw |>
+  dplyr::filter(!grepl("^PT-\\d{4}$", subjid)) |>
+  audit_table()
+
+# Check for any duplicate subjid's
+# with the same visit dates
+data_long_raw |>
+  dplyr::group_by(subjid, visit_dt) |>
+  dplyr::filter(dplyr::n() > 1) |>
+  dplyr::ungroup() |>
+  audit_table()
+```
+
+Okay, so, there are 38.
+Did they all only differ by regimen, so we have them recorded as both ORAL and CAB_LA?
+
+```{r}
+n_row_distinct_dupl_subjid_visit <- data_long_raw |>
+  dplyr::group_by(subjid, visit_dt) |>
+  dplyr::filter(dplyr::n() > 1) |>
+  dplyr::ungroup() |>
+  dplyr::select(-regimen) |>
+  dplyr::distinct() |>
+  nrow()
+n_unique_subjectid_dupl_subjid_visit <- data_long_raw |>
+  dplyr::group_by(subjid, visit_dt) |>
+  dplyr::filter(dplyr::n() > 1) |>
+  dplyr::ungroup() |>
+  dplyr::distinct(subjid) |>
+  nrow()
+```
+
+There are `r n_row_distinct_dupl_subjid_visit` rows with duplicate subjid and visit_dt combinations, and they involve `r n_unique_subjectid_dupl_subjid_visit` unique subjects.
+So, one person remained a duplicate after removing the regimen column.
+Scanning the table, that is `PT-0133` at visit `2024-10-24`.
+
+```{r}
+data_long_raw |>
+  dplyr::filter(
+    subjid == "PT-0133" &
+    visit_dt == "2024-10-24"
+  ) |>
+  audit_table()
+```
+
+So, this person had two `egfr_val` readings.
+I suggest we just average the two.
+Can query later.
+
+```{r}
+data_long_raw_0133 <- data_long_raw |>
+  dplyr::filter(
+    subjid == "PT-0133" &
+    visit_dt == "2024-10-24"
+  ) |>
+  dplyr::group_by(
+    subjid, visit_dt, regimen, hiv_status, adh_biomarker
+  ) |>
+  dplyr::summarise(
+    egfr_val = mean(egfr_val, na.rm = TRUE)
+  ) |>
+  dplyr::ungroup()
+data_long_tidy_0133 <- data_long_raw |>
+  dplyr::filter(
+    !(subjid == "PT-0133" &
+    visit_dt == "2024-10-24")
+  ) |>
+  dplyr::bind_rows(data_long_raw_0133)
+audit_table(data_long_tidy_0133, show_rows = FALSE)
+```
+
+Okay, let's confirm for all the others that they really did have duplicate subjid and visit_dt combinations only differing by regimen:
+
+```{r}
+data_long_tidy_0133 |>
+  dplyr::group_by(subjid, visit_dt) |>
+  dplyr::filter(dplyr::n() > 1) |>
+  dplyr::ungroup() |>
+  dplyr::group_by(subjid, visit_dt) |>
+  dplyr::filter(length(unique(regimen)) == 1) |>
+  dplyr::ungroup() |>
+  audit_table()
+```
+
+None of these duplicate visits had only one regimen.
+I am not sure whether they received both oral and cab_la regimens at the same visit, or if this is some other kind of mistake.
+We exclude this visit and all subsequent visits from the analysis, unless it is their last visit, in which case the actual treatment at that point does not matter.
+
+```{r}
+data_long_tidy_dupl_reg_inc_visit <- data_long_tidy_0133 |>
+  dplyr::group_by(subjid, visit_dt) |>
+  dplyr::filter(dplyr::n() > 1) |>
+  dplyr::ungroup() |>
+  dplyr::group_by(subjid, visit_dt) |>
+  dplyr::filter(length(unique(regimen)) > 1) |>
+  dplyr::ungroup() |>
+  dplyr::rename(visit_dt_dupl_reg = visit_dt) |>
+  dplyr::select(subjid, visit_dt_dupl_reg) |>
+  dplyr::distinct()
+audit_table(data_long_tidy_dupl_reg_inc_visit, show_rows = FALSE)
+pid_vec_dupl_reg <- data_long_tidy_dupl_reg_inc_visit |>
+  dplyr::distinct(subjid) |>
+  dplyr::pull(subjid)
+
+data_long_tidy_dupl_reg_exc <- data_long_tidy_0133 |>
+  dplyr::filter(!(subjid %in% pid_vec_dupl_reg))
+
+data_long_tidy_dupl_reg <- data_long_tidy_0133 |>
+  dplyr::filter(subjid %in% pid_vec_dupl_reg)
+
+data_long_tidy_dupl_reg_inc <- data_long_tidy_dupl_reg |>
+  dplyr::left_join(
+    data_long_tidy_dupl_reg_inc_visit,
+    by = c("subjid")
+  ) |>
+  dplyr::filter(
+    visit_dt <= visit_dt_dupl_reg
+  ) |>
+  dplyr::select(-visit_dt_dupl_reg)
+
+data_long_tidy_excluded <- data_long_tidy_dupl_reg_exc |>
+  dplyr::bind_rows(data_long_tidy_dupl_reg_inc)
+audit_table(data_long_tidy_excluded, show_rows = FALSE)
+```
+
+So, wrt the remaining variables, we know hiv is either 0 or 1. 
+I suppose it's left a numeric vairable because that's more conveneit for surivval analysis, so we'll leave it as taht.
+
+Let's check the range of `egfr_val` values:
+
+```{r}
+data_long_tidy_excluded |>
+  dplyr::summarise(
+    min_egfr = min(egfr_val, na.rm = TRUE),
+    max_egfr = max(egfr_val, na.rm = TRUE),
+    iqr_egft = IQR(egfr_val, na.rm = TRUE),
+    median_egfr = median(egfr_val, na.rm = TRUE)
+  )
+```
+
+Looks like a similar range to baseline.
+
+Okay, let's convert the `adh_biomarker` and subjid columns to lower-case, and visit_dt to Date.
+
+```{r}
+data_long_tidy_adh <- data_long_tidy_excluded |>
+  dplyr::mutate(
+    adh_biomarker = tolower(adh_biomarker),
+    visit_dt = as.Date(visit_dt),
+    regimen = tolower(regimen),
+    subjid = tolower(subjid)
+  )
+```
+
+Let's remove all visits after hiv infection:
+
+```{r}
+data_long_ever_infected <- data_long_tidy_adh |>
+  # get all visits
+  dplyr::group_by(subjid) |>
+  dplyr::mutate(ever_infected = any(hiv_status == 1)) |>
+  dplyr::ungroup() |>
+  dplyr::filter(ever_infected) |>
+  dplyr::select(-ever_infected) |>
+  dplyr::group_by(subjid) |>
+  dplyr::mutate(
+    date_infxn = min(visit_dt[hiv_status == 1])
+  ) |>
+  dplyr::filter(
+    visit_dt <= date_infxn
+  ) |>
+  dplyr::ungroup() |>
+  dplyr::select(-date_infxn)
+
+data_long_never_infected <- data_long_tidy_adh |>
+  dplyr::group_by(subjid) |>
+  dplyr::mutate(ever_infected = any(hiv_status == 1)) |>
+  dplyr::filter(!ever_infected) |>
+  dplyr::select(-ever_infected) |>
+  dplyr::ungroup()
+
+data_long_tidy_pre_infxn <- dplyr::bind_rows(
+  data_long_ever_infected,
+  data_long_never_infected
+)
+audit_table(data_long_tidy_pre_infxn, show_rows = FALSE)
+```
+
+```{r}
+data_long_tidy <- data_long_tidy_pre_infxn
+```
+
+### Merging
+
+Okay, let's merge based on `subjid`.
+
+```{r}
+data_merged <- data_bl_tidy |>
+  dplyr::full_join(
+    data_long_tidy,
+    by = c("subjid")
+  ) |>
+  dplyr::select(
+    subjid, enroll_dt, site_id, age_yrs, base_egfr, risk_score,
+    visit_dt, regimen, adh_biomarker, egfr_val, hiv_status, dplyr::everything()
+  ) |>
+  dplyr::arrange(subjid, enroll_dt, visit_dt)
+audit_table(data_merged, show_rows = FALSE)
+```
+
+Let's check whether we've got participants without any follow-up visits:
+
+```{r}
+data_merged_no_followup <- data_merged |>
+  dplyr::group_by(subjid) |>
+  dplyr::filter(all(visit_dt <= enroll_dt)) |>
+  dplyr::ungroup()
+audit_table(data_merged_no_followup)
+```
+
+The number of individuals is `r dplyr::n_distinct(data_merged_no_followup$subjid)`.
+We exclude them, as they provide no information as to follow-up visits after enrolment.
+
+```{r}
+data_merged_with_followup <- data_merged |>
+  dplyr::group_by(subjid) |>
+  dplyr::filter(!all(visit_dt <= enroll_dt)) |>
+  dplyr::ungroup()
+audit_table(data_merged_with_followup, show_rows = FALSE)
+```
+
+Let's check that all visit dates take place after enrolment:
+
+```{r}
+# before, clearly wrong
+data_merged_before_enroll <- data_merged_with_followup |>
+  dplyr::filter(visit_dt < enroll_dt)
+audit_table(data_merged_before_enroll)
+```
+
+So, for these `r nrow(data_merged_before_enroll)` visits, the visit date is before enrolment.
+We exclude them.
+
+```{r}
+data_merged_not_before_enroll <- data_merged_with_followup |>
+  dplyr::filter(visit_dt >= enroll_dt) 
+audit_table(data_merged_not_before_enroll, show_rows = FALSE)
+```
+
+Let's check again if we have got follow-up visits for every participant:
+
+```{r}
+data_merged_not_before_enroll |>
+  dplyr::group_by(subjid) |>
+  dplyr::filter(!any(visit_dt >= enroll_dt)) |>
+  dplyr::ungroup() |>
+  audit_table()
+```
+
+Okay, so that's fine then.
+
+Let's check that we've got the visits that occur exactly on the enrolment date.
+
+```{r}
+# at, needs clarification
+data_merged_at_enroll <- data_merged_not_before_enroll |>
+  dplyr::filter(visit_dt == enroll_dt)
+audit_table(data_merged_at_enroll)
+```
+
+So, `r nrow(data_merged_at_enroll)` rows. Let's check that's everyone:
+
+```{r}
+data_merged_no_bl_long_visit <- data_merged_not_before_enroll |>
+  dplyr::group_by(subjid) |>
+  dplyr::filter(!any(visit_dt == enroll_dt)) |>
+  dplyr::ungroup()
+audit_table(data_merged_no_bl_long_visit, width = Inf)
+```
+
+So, for these `r dplyr::n_distinct(data_merged_no_bl_long_visit$subjid)` individuals, we've got no visits occurring exactly on the enrolment date.
+I am not entirely sure we should exclude them (will have a better idea once we (eventually) start analysign them), but okay.
+Let's just exclude them for the sake of time for now, it's only two people, and neither developed HIV, so they're not as "rare".
+
+```{r}
+data_merged_not_has_bl_long_visit <- data_merged_not_before_enroll |>
+  dplyr::group_by(subjid) |>
+  dplyr::filter(any(visit_dt == enroll_dt)) |>
+  dplyr::ungroup()
+audit_table(data_merged_not_has_bl_long_visit, show_rows = FALSE)
+```
+
+Save the table:
+
+```{r}
+data_merged_tidy <- data_merged_not_has_bl_long_visit
+projr::projr_use_data(data_merged_tidy)
+```
+
+```{r}
+data_merged_tidy |>
+  UtilsDataRSV::view_cols()
+```
+
+# Constructing a survival format dataset
+
+Need to construct it into a counting-process format, with Start, Stop, Event format:
+
+```{r}
+
+```
