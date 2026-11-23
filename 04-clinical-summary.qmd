@@ -5,7 +5,7 @@ format:
     embed-resources: true
 ---
 
--  Primary outcome
+- Primary outcome
   - Effect of regimen (oral PrEP vs LA PrEP) on time until HIV infection
 - Results:
   - Effectiveness of LA PrEP: 

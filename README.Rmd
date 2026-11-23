@@ -7,20 +7,52 @@ The purpose of this project is to
 
 Run the following code from the project working directory:
 
-```r
-if (!requireNamespace("projr", quietly = TRUE)) {
-  if (!requireNamespace("remotes", quietly = TRUE)) {
-    install.packages("remotes")
-  }
-  remotes::install_github("SATVILab/projr")
-}
+Clone the repository:
+
+```sh
+git clone https://github.com/MiguelRodo/comp-upskilling -b tutu-competency-assessment tutu
+```
+
+Switch to the project directory, e.g.:
+
+```sh
+cd tutu
+```
+
+Restore the R packages and their versions:
+
+```{r}
+renv::restore()
+```
+
+In `R`, restore the raw data:
+
+```{r}
+projr::projr_restore()
+```
+
+Run the build:
+
+```{r}
 projr::projr_build_dev()
 ```
 
-<!--
-Change the above instructions, e.g. specify non-default parameters or
-another approach entirely.
--->
+The outputs will be under `_tmp/projr/v<version>/` (initially, `v<version>` will be `v<0.3.0-1>`) with `data` and `docs` as the sub-folders containing processed data and rendered documents.
+
+## Installing the package
+
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("MiguelRodo/comp-upskilling@tutu-competency-assessment")
+```
+
+The processed data can then be loaded a follows:
+
+```{r}
+load("
+```
 
 ## Directory Structure
 
@@ -36,14 +68,6 @@ materials, generated outputs, and temporary files efficiently:
   reports.
 - **`_tmp/`**: Temporary storage for cached outputs, intermediate
   results, and shared files.
-
-## Links
-
-- `[URLs to data sources (e.g. OneDrive), GitHub repos, etc.]`
-
-## Details
-
-`[Methods, timeline, team, data sources, software/tools, etc.]`
 
 ## Change Log
 
