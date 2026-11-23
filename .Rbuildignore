@@ -1,0 +1,32 @@
+^_projr\.yml$
+
+# Start of projr section: do not edit by hand (update with projr_ignore_auto())
+^_projr/manifests/
+^_projr/manifests$
+^README\.Rmd$
+^_projr\.yml$
+^README\.html$
+^README\.tex$
+^README\.knit\.md$
+^README\.utf8\.md$
+^README\.rmarkdown$
+^README\.log$
+^README\.aux$
+^README\.out$
+^README\.toc$
+^README\.fls$
+^README\.fdb_latexmk$
+^README\.synctex\.gz$
+^README\.bbl$
+^README\.blg$
+^README\.nav$
+^README\.snm$
+^README\.vrb$
+^README_files/
+^README_files$
+^README_cache/
+^README_cache$
+^_archive/
+^_archive$
+# End of projr section
+

@@ -1,0 +1,29 @@
+# Start of projr section: do not edit by hand (update with projr_ignore_auto())
+/_output/**
+/_raw_data/**
+/_tmp/**
+/docs/**
+# End of configured directory rules
+/_projr/manifests/.versions.lock
+/README.html
+/README.tex
+/README.knit.md
+/README.utf8.md
+/README.rmarkdown
+/README.log
+/README.aux
+/README.out
+/README.toc
+/README.fls
+/README.fdb_latexmk
+/README.synctex.gz
+/README.bbl
+/README.blg
+/README.nav
+/README.snm
+/README.vrb
+/README_files/
+/README_cache/
+_archive/**
+# End of projr section
+
