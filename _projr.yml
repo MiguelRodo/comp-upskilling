@@ -17,7 +17,7 @@ build:
   scripts:
   - !_dependencies.R
   - 01-data-prep.qmd
-  - 02-primary-analysis.qmd
+  - !02-primary-analysis.qmd
   github:
     archive:
       content:

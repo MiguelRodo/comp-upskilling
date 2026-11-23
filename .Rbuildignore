@@ -17,9 +17,9 @@
 ^02-primary-analysis\.qmd$
 ^README\.Rmd$
 ^_dependencies\.R$
+^01-data-prep\.html$
 ^BUILDLOG\.md$
 ^CHANGELOG\.md$
-^01-data-prep\.html$
 ^02-primary-analysis\.html$
 ^README\.html$
 ^01-data-prep\.tex$
