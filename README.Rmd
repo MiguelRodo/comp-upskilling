@@ -1,7 +1,6 @@
-# README
+# Desmond Tutu Health Foundation Senior Biostatistician Competency Assessment
 
-The purpose of this project is to
-`[briefly describe the project's goals and objectives]`
+The purpose of this project is to perform the Desmond Tutu Health Foundation senior biostatistician comptency assessment.
 
 ## Reproducing the analysis
 
@@ -21,19 +20,19 @@ cd tutu
 
 Restore the R packages and their versions:
 
-```{r}
+```r
 renv::restore()
 ```
 
 In `R`, restore the raw data:
 
-```{r}
+```r
 projr::projr_restore()
 ```
 
 Run the build:
 
-```{r}
+```r
 projr::projr_build_dev()
 ```
 
@@ -50,7 +49,7 @@ remotes::install_github("MiguelRodo/comp-upskilling@tutu-competency-assessment")
 
 The processed data can then be loaded a follows:
 
-```{r, eval=FALSE}
+```r
 data("data_merged_tidy", "data_surv_tidy", package = "tutuCompetency")
 ```
 
