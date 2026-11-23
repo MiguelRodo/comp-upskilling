@@ -1,5 +1,7 @@
 # CHANGELOG
 
+- Patch (v0.6.1): Miguel Rodo (2026-11-23 16:21:04)
+  - Ensure raw data are correctly uploaded
 - *Minor* (v0.6.0): Miguel Rodo (2026-11-23 11:46:14)
   - Add tasks 2 and 4
 
