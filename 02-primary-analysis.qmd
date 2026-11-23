@@ -8,13 +8,7 @@ format:
 # Analysis
 
 ```{r}
-path_data <- c(
-  "data/data_surv_tidy.rda",
-  projr::projr_path_get(
-    "cache", 
-  )
-)
-load("data/data_surv_tidy.rda")
+load(projr::projr_path_get("raw-data", "data_surv_tidy.rda"))
 ```
 
 ```{r}
