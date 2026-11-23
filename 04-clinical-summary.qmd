@@ -1,0 +1,18 @@
+---
+title: "Task 4: Clinical Summary"
+format:
+  pdf:
+    embed-resources: true
+---
+
+-  Primary outcome
+  - Effect of regimen (oral PrEP vs LA PrEP) on time until HIV infection
+- Results:
+  - Effectiveness of LA PrEP: 
+    - Decreases hazard rate by approximately 77.74% (95% CI: 44.90%, 91.09%), p = 0.0012
+- Used a Cox PH model that accounted for baseline (baseline eGFR, HIV infection risk, age, site) and time-varying (eGFR, regimen) covariates.
+- Limitations:
+  - Observational study, so no randomisation.
+  - Did not determine sensitivity to informative censoring.
+  - Could have been unmeasured confounding, but hopefully the HIV risk factor and site-specific baseline hazards mitigated that.
+  - Did not explore results under other formulations of survival model (e.g. parametric, Cox PH with time-since-entry restarting at visit).

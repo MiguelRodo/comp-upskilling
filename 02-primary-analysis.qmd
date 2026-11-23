@@ -8,12 +8,83 @@ format:
 # Analysis
 
 ```{r}
+library(tibble)
+library(ggplot2)
+library(survival)
+```
+
+```{r}
 load(projr::projr_path_get("raw-data", "processed", "data_surv_tidy.rda"))
+data_surv_tidy <- tibble::as_tibble(data_surv_tidy)
+data_surv_tidy |>
+  UtilsDataRSV::view_cols()
+data_surv_tidy <- data_surv_tidy |>
+  dplyr::mutate(
+    regimen = factor(data_surv_tidy$regimen, levels = c("oral", "cab_la"))
+  )
 ```
 
 ```{r}
 cox_fit <- survival::coxph(
-  survival::Surv(start, stop, event) ~ ., 
+  survival::Surv(start, stop, event) ~
+    regimen + age_yrs + base_egfr + risk_score + strata(site_id),
   data = data_surv_tidy
 )
 ```
+
+- Regimen is a time-varying covariate, so we prevent immortal time bias
+- Time-varying exposure is properly accounted for, as regimen switches for the interval and the interval is given the correct length
+  - We could have started all intervals at time zero (rather than modelling a two-year baseline hazard), but there isn't time here for that.
+- Included seemingly-relevant baseline confounders
+  - We have many visits per subject, so we do not have too many confounders per person
+- We could have accounted for site by a standard confounder, but we can also allow each site to have its own baseline hazard, as we did here.
+  - This would be appropriate if the shape of the baseline hazard differs between sites.
+- We could have fit a parametric survival model, but that entails an additional assumption about the shape of the baseline hazard. Under time constraints, we choose the more flexible model.
+
+
+```{r}
+summary(cox_fit)
+```
+
+- The LA regimen is highly statistically signfiicant (p = 0.0012), and decreases hazard ratio by 77.74%, approximately (95% CI: 44.90%, 91.09%).
+
+- It appears as thought the constant hazard ratio for age is rejected (0.0091), possibly declining over time, but the PH assumption for regimen seems fine (p = 0.2928).
+
+```{r}
+cox_zph <- cox.zph(cox_fit)
+```
+
+```{r}
+var_vec <- c("regimen", "age_yrs", "base_egfr", "risk_score")
+path_vec <- c()
+for (x in var_vec) {
+  path_p <- projr::projr_path_get("cache", paste0("p-cox-resid-", x, ".png"))
+  path_vec <- c(path_vec, path_p)
+  png(path_p)
+  plot(cox_zph, var = x)
+  dev.off()
+}
+```
+
+```{r}
+#| results: asis
+knitr::include_graphics(path_vec[1])
+```
+
+```{r}
+#| results: asis
+knitr::include_graphics(path_vec[2])
+```
+
+```{r}
+#| results: asis
+knitr::include_graphics(path_vec[3])
+```
+
+```{r}
+#| results: asis
+knitr::include_graphics(path_vec[4])
+```
+
+- To check for correct functional form, I would plot the residus (`resid(cox_fit)` against the explanatory variables), and see if there's a pattern (e.g. the residuals systematically increase or decrease with the covariate), which would indicate a mis-specified functional form.
+- To check for influential observations, I would look at the `dfbeta` (change in the estimated regression coefficient) for treatment against each observation, and see if any single observation has an especially large effect.
