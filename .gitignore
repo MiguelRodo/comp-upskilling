@@ -3,15 +3,13 @@
 /_raw_data/**
 /_reference/**
 /_tmp/**
-/data/**
 /docs/**
-# End of configured directory rules
+
 /.projr/manifests/.versions.lock
 /.projr/logs/**
 /01-data-prep.html
 /02-primary-analysis.html
 /04-clinical-summary.pdf
-/README.html
 /01-data-prep.tex
 /02-primary-analysis.tex
 /04-clinical-summary.tex
@@ -79,7 +77,6 @@
 /01-data-prep_files/
 /02-primary-analysis_files/
 /04-clinical-summary_files/
-/README_files/
 /01-data-prep_cache/
 /02-primary-analysis_cache/
 /04-clinical-summary_cache/

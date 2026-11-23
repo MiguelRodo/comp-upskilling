@@ -1707,13 +1707,14 @@
     },
     "projr": {
       "Package": "projr",
-      "Version": "0.5.2-10",
+      "Version": "0.6.1",
       "Source": "GitHub",
       "Title": "Facilitate Reproducible and Archived Projects",
-      "Authors@R": "person(\"Miguel\", \"Rodo\", , \"miguel.rodo@uct.ac.za\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-2036-4878\"))",
+      "Authors@R": "c( person(\"Miguel\", \"Rodo\", email = \"miguel.rodo@uct.ac.za\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-2036-4878\")), person(\"Alexander\", \"Peslyak\", role = \"ctb\", comment = \"Bundled MD5 implementation\") )",
       "Maintainer": "Miguel Rodo <miguel.rodo@uct.ac.za>",
-      "Description": "Facilitate reproducible and archived projects.",
-      "License": "file LICENSE",
+      "Description": "Run R scripts and render 'Quarto', 'R Markdown' and 'bookdown' documents in a configured order. Record file hashes for each version of an analysis, archive its inputs and outputs locally or in 'GitHub' releases, and restore the inputs for a checked-out version.",
+      "License": "MIT + file LICENSE",
+      "Copyright": "2022 projr authors. See COPYRIGHTS for the bundled MD5 code.",
       "Encoding": "UTF-8",
       "Roxygen": "list(markdown = TRUE)",
       "Depends": [
@@ -1764,16 +1765,17 @@
         "styler"
       ],
       "Config/testthat/edition": "3",
-      "URL": "https://satvilab.github.io/projr/",
+      "URL": "https://satvilab.github.io/projr/, https://github.com/SATVILab/projr",
+      "BugReports": "https://github.com/SATVILab/projr/issues",
       "VignetteBuilder": "knitr",
       "Config/roxygen2/version": "8.0.0",
-      "Author": "Miguel Rodo [aut, cre] (ORCID: <https://orcid.org/0000-0002-2036-4878>)",
+      "Author": "Miguel Rodo [aut, cre] (ORCID: <https://orcid.org/0000-0002-2036-4878>), Alexander Peslyak [ctb] (Bundled MD5 implementation)",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "SATVILab",
       "RemoteRepo": "projr",
       "RemoteRef": "main",
-      "RemoteSha": "827e98f8ca4f796b92c1142cd0071ee9b4500550"
+      "RemoteSha": "8c4c07867b46b89d2b02b23bdb4da95f0418a594"
     },
     "ps": {
       "Package": "ps",
