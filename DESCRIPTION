@@ -1,6 +1,6 @@
 Package: tutuCompetency
 Title: Tutu Competency Assessment Analysis
-Version: 0.3.0
+Version: 0.5.0
 Authors@R: person("Miguel", "Rodo", email = "miguel.rodo@outlook.com",
         role = c("aut", "cre"))
 Description: Provides processed data and helper functions for the Tutu

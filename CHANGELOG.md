@@ -1,5 +1,8 @@
 # CHANGELOG
 
+- *Minor* (v0.3.0): Miguel Rodo (2026-11-23 11:36:04)
+  - Add tasks 2 and 4
+
 - *Minor* (v0.2.0): Miguel Rodo (2026-11-23 11:05:31)
   - Add primary analysis and clinical summary
 
