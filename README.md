@@ -1,20 +1,20 @@
-# Desmond Tutu Health Foundation
+# README
 
-The purpose of this project is to complete the competency assessment for the DTHF senior biostatistician application.
+The purpose of this project is to
+`[briefly describe the project's goals and objectives]`
 
 ## Reproducing the analysis
 
 Run the following code from the project working directory:
 
-```r
-if (!requireNamespace("projr", quietly = TRUE)) {
-  if (!requireNamespace("remotes", quietly = TRUE)) {
-    install.packages("remotes")
-  }
-  remotes::install_github("SATVILab/projr")
-}
-projr::projr_build_dev()
-```
+    if (!requireNamespace("projr", quietly = TRUE)) {
+      if (!requireNamespace("remotes", quietly = TRUE)) {
+        install.packages("remotes")
+      }
+      remotes::install_github("SATVILab/projr")
+    }
+    projr::projr_build_dev()
+
 <!--
 Change the above instructions, e.g. specify non-default parameters or
 another approach entirely.
@@ -49,4 +49,7 @@ Summary of updates is included below. For more detailed run information,
 including scripts run and configurations used, see
 [BUILDLOG.md](BUILDLOG.md).
 
-No CHANGELOG.md found.
+# CHANGELOG
+
+- Patch (v0.0.2): Miguel Rodo (2026-11-23 07:38:39)
+  - Tste
