@@ -1,5 +1,5 @@
 {
-  "name": "Upskilling",
+  "name": "Tutu competency assessment",
   "image": "ghcr.io/miguelrodo/devcontainers-main:v1.13.1",
   "customizations": {
     "vscode": {
