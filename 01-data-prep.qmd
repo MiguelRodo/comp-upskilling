@@ -482,5 +482,39 @@ data_merged_tidy |>
 Need to construct it into a counting-process format, with Start, Stop, Event format:
 
 ```{r}
+pid_vec <- unique(data_merged_tidy$subjid)
+data_surv_tidy <- purrr::map_df(pid_vec, function(pid) {
+  data_pid <- data_merged_tidy |>
+    dplyr::filter(subjid == pid)
+  tp_vec <- sort(unique(data_pid$visit_dt))
+  tp_vec_post <- tp_vec[2:length(tp_vec)]
+  days_vec_since_start <- as.numeric(difftime(tp_vec, data_pid$enroll_dt[[1L]], units = "days"))
+  purrr::map_df(seq_along(tp_vec)[-1], function(i) {
+    day_post <- days_vec_since_start[i]
+    day_prev <- days_vec_since_start[i - 1]
+    data_pid_curr <- data_pid |>
+      dplyr::filter(visit_dt == tp_vec[i])
+    data_pid_prev <- data_pid |>
+      dplyr::filter(visit_dt == tp_vec[i - 1])
+    tibble::tibble(
+      subjid = pid,
+      start = day_prev,
+      stop = day_post,
+      event = data_pid_curr$hiv_status
+    ) |>
+      dplyr::bind_cols(
+        data_pid_prev |>
+          dplyr::select(-subjid, -visit_dt)
+      )
+  })
+})
+```
 
+```{r}
+projr::projr_use_data(data_surv_tidy)
+```
+
+```{r}
+data_surv_tidy |>
+  UtilsDataRSV::view_cols()
 ```

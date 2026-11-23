@@ -4,3 +4,16 @@ format:
   html:
     embed-resources: true
 ---
+
+# Analysis
+
+```{r}
+load("data/")
+```
+
+```{r}
+cox_fit <- survival::coxph(
+  survival::Surv(start, stop, event) ~ ., 
+  data = data_surv_tidy
+)
+```
