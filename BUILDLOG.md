@@ -1,5 +1,114 @@
 # BUILDLOG
 
+### v0.6.0: Miguel Rodo (2026-11-23 11:46:15)
+
+**Description**
+
+Add tasks 2 and 4
+
+**Metadata**
+
+- Total time: 
+1min 46s
+- `projr` profile: 
+default
+
+**Inputs Changes (v0.5.0 -> v0.6.0)**
+
+- `raw-data`: No changes (4 file(s) unchanged)
+- No changes detected in inputs
+
+**Outputs Changes (v0.5.0 -> v0.6.0)**
+
+- `docs`:
+  - 3 modified
+  - Modified: 01-data-prep.html, 02-primary-analysis.html, 04-clinical-summary.pdf
+
+**System Resources**
+
+- OS: Linux 6.8.0-1070-azure
+- OS Version: #78~22.04.1-Ubuntu SMP Thu Sep 24 18:46:45 UTC 2026
+- Architecture: x86_64
+- Platform: x86_64-pc-linux-gnu
+- CPU Cores: 4
+- Total RAM: 15Gi
+- Disk Space: 32G total, 21G available
+
+**`projr` config**
+
+```yaml
+directories:
+  raw-docs:
+    path: _reference
+  raw-data:
+    path: _raw_data
+    source:
+      github: archive
+  cache:
+    path: _tmp
+  output:
+    path: _output
+  docs:
+    path: docs
+  data:
+    path: data
+build:
+  scripts:
+  - ''
+  - 01-data-prep.qmd
+  - 02-primary-analysis.qmd
+  - 04-clinical-summary.qmd
+  github:
+    archive:
+      content:
+      - raw-data
+      - output
+      - raw-docs
+      - docs
+      structure: archive
+
+```
+
+**Session info**
+
+```
+R version 4.6.1 (2026-06-24)
+Platform: x86_64-pc-linux-gnu
+Running under: Ubuntu 24.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Etc/UTC
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices datasets  utils     methods   base     
+
+loaded via a namespace (and not attached):
+ [1] vctrs_0.7.3       httr_1.4.9        cli_3.6.6         knitr_1.52       
+ [5] rlang_1.3.0       xfun_0.62         processx_3.10.0   renv_1.3.1       
+ [9] jsonlite_2.0.0    gitcreds_0.1.2    glue_1.8.1        rprojroot_2.1.1  
+[13] htmltools_0.5.9   quarto_1.5.1      ps_1.9.3          rmarkdown_2.32   
+[17] filelock_1.0.3    tibble_3.3.1      evaluate_1.0.5    ini_0.3.1        
+[21] fastmap_1.2.0     yaml_2.3.12       lifecycle_1.0.5   projr_0.5.2-10   
+[25] compiler_4.6.1    fs_2.1.0          pkgconfig_2.0.3   Rcpp_1.1.2       
+[29] rstudioapi_0.19.0 later_1.4.8       gh_1.6.1          digest_0.6.39    
+[33] R6_2.6.1          parallel_4.6.1    pillar_1.11.1     curl_8.1.0       
+[37] magrittr_2.0.5    uuid_1.2-2        tools_4.6.1      
+```
+
+----
+
 ### v0.5.0: Miguel Rodo (2026-11-23 11:41:10)
 
 **Description**
